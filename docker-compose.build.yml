@@ -1,0 +1,11 @@
+# Build the image locally instead of pulling it from GHCR.
+#
+#   TWEB_API_ID=... TWEB_API_HASH=... docker compose -f docker-compose.yml -f docker-compose.build.yml up -d --build
+services:
+  tweb:
+    build:
+      context: .
+      args:
+        API_ID: ${TWEB_API_ID:?set TWEB_API_ID}
+        API_HASH: ${TWEB_API_HASH:?set TWEB_API_HASH}
+        TWEB_REF: ${TWEB_REF:-master}

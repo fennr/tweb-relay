@@ -1,0 +1,49 @@
+diff --git a/src/env.d.ts b/src/env.d.ts
+index 4002724..f9a16a3 100644
+--- a/src/env.d.ts
++++ b/src/env.d.ts
+@@ -16,6 +16,10 @@ interface ImportMetaEnv {
+   readonly VITE_MTPROTO_HAS_HTTP: string;
+   readonly VITE_MTPROTO_HAS_WS: string;
+   readonly VITE_SAFARI_PROXY_WEBSOCKET: string;
++  // same-origin relay prefixes; set only for builds served behind a proxy that
++  // forwards MTProto to Telegram (see /tgws and /tgw in nginx.conf)
++  readonly VITE_TG_RELAY_WS?: string;
++  readonly VITE_TG_RELAY_HTTP?: string;
+   // injected via `define` by vite.preview.config.ts; absent in every other build
+   readonly VITE_PREVIEW?: boolean;
+   // injected via `define` by vite.preview.config.ts when start-preview.sh is
+diff --git a/src/lib/mtproto/dcConfigurator.ts b/src/lib/mtproto/dcConfigurator.ts
+index efc1436..18274ad 100644
+--- a/src/lib/mtproto/dcConfigurator.ts
++++ b/src/lib/mtproto/dcConfigurator.ts
+@@ -57,6 +57,16 @@ export function constructTelegramWebSocketUrl(_dcId: DcId, connectionType: Conne
+   const dcId = assertValidDcId(_dcId);
+   const suffix = getTelegramConnectionSuffix(connectionType);
+   const path = connectionType !== 'client' ? 'apiws' + TEST_SUFFIX + (premium ? PREMIUM_SUFFIX : '') : ('apiws' + TEST_SUFFIX);
++
++  // Same-origin relay (nginx forwards /tgws/<dc>/apiws to kws<dc>.web.telegram.org).
++  // Set VITE_TG_RELAY_WS when the client runs behind a network that cannot reach
++  // Telegram directly; the relay endpoint is reached over the site's own domain.
++  const relay = import.meta.env.VITE_TG_RELAY_WS;
++  if(relay) {
++    const origin = location.origin.replace(/^http/, 'ws');
++    return `${origin}${relay}/${dcId}${suffix}/${path}`;
++  }
++
+   const chosenServer = `wss://${App.suffix.toLowerCase()}ws${dcId}${suffix}.web.telegram.org/${path}`;
+ 
+   return chosenServer;
+@@ -107,7 +117,11 @@ export class DcConfigurator {
+     }
+ 
+     let chosenServer: string;
+-    if(Modes.ssl || !Modes.http) {
++    if(import.meta.env.VITE_TG_RELAY_HTTP) {
++      const suffix = getTelegramConnectionSuffix(connectionType);
++      const path = Modes.test ? 'apiw_test1' : 'apiw1';
++      chosenServer = location.origin + import.meta.env.VITE_TG_RELAY_HTTP + `/${dcId}${suffix}/${path}`;
++    } else if(Modes.ssl || !Modes.http) {
+       const suffix = getTelegramConnectionSuffix(connectionType);
+       const subdomain = this.sslSubdomains[dcId - 1] + suffix;
+       const path = Modes.test ? 'apiw_test1' : 'apiw1';
