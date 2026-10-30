@@ -5,6 +5,11 @@ on:
     branches: [main]
     tags: ['v*']
   workflow_dispatch:
+    inputs:
+      ref:
+        description: 'tweb branch, tag or commit to build'
+        required: false
+        default: master
 
 env:
   REGISTRY: ghcr.io
@@ -49,5 +54,6 @@ jobs:
           build-args: |
             API_ID=${{ secrets.TWEB_API_ID }}
             API_HASH=${{ secrets.TWEB_API_HASH }}
+            TWEB_REF=${{ inputs.ref || 'master' }}
           cache-from: type=gha
           cache-to: type=gha,mode=max

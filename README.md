@@ -89,6 +89,19 @@ TWEB_API_ID=... TWEB_API_HASH=... \
   docker compose -f docker-compose.yml -f docker-compose.build.yml up -d --build
 ```
 
+## Switching an existing bind-mount deployment
+
+An earlier setup may serve a prebuilt `site/` directory from `./nginx`. The
+image is a drop-in replacement: point `TWEB_IMAGE` at the published tag, remove
+the `site`/`nginx` volume mounts, and recreate.
+
+```sh
+docker compose down
+docker compose up -d          # pulls the image instead of mounting ./site
+```
+
+The relay paths (`/tgws`, `/tgw`) are inside the image, so nothing else changes.
+
 ## Updating tweb
 
 Bump `TWEB_REF` (branch, tag or commit) in the workflow:
