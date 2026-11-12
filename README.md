@@ -15,16 +15,20 @@ You need Docker, a domain with a DNS record pointing at the host, free ports
 (API development tools).
 
 ```sh
-git clone https://github.com/fennr/tweb-relay.git
+curl -fsSL https://raw.githubusercontent.com/fennr/tweb-relay/main/scripts/install.sh | sh
 cd tweb-relay
-cp .env.example .env
 $EDITOR .env    # TWEB_HOST, TWEB_API_ID, TWEB_API_HASH
 
 docker compose -f docker-compose.standalone.yml up -d
 ```
 
+Or clone the repository:
+`git clone --depth 1 https://github.com/fennr/tweb-relay.git`.
+
 TLS certificates are issued and renewed automatically via Caddy in
-`docker-compose.standalone.yml`. Already running Traefik? Take
+`docker-compose.standalone.yml`. 
+
+Already running Traefik? Take
 `docker-compose.yml` — [docs/traefik.md](docs/traefik.md).
 
 ## Limitations

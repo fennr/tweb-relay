@@ -15,22 +15,26 @@ api_id/api_hash от Telegram — получить один раз на <https:/
 (API development tools).
 
 ```sh
-git clone https://github.com/fennr/tweb-relay.git
+curl -fsSL https://raw.githubusercontent.com/fennr/tweb-relay/main/scripts/install.sh | sh
 cd tweb-relay
-cp .env.example .env
 $EDITOR .env    # TWEB_HOST, TWEB_API_ID, TWEB_API_HASH
 
 docker compose -f docker-compose.standalone.yml up -d
 ```
 
+Либо скачайте репозиторий целиком:
+`git clone --depth 1 https://github.com/fennr/tweb-relay.git`.
+
 Сертификаты TLS выпускаются и продлеваются автоматически через Caddy в
-`docker-compose.standalone.yml`. Если используете Traefik, берите
+`docker-compose.standalone.yml`. 
+
+Если используете Traefik, берите
 `docker-compose.yml` — [docs/traefik.md](docs/traefik.md).
 
 ## Ограничения
 
-- Голосовые/видеозвонки (WebRTC, не MTProto) не поддерживаются
-- Весь медиатрафик вошедших пользователей идёт через ваш сервер
+- Голосовые/видеозвонки (WebRTC, не MTProto) не поддерживаются.
+- Весь медиатрафик вошедших пользователей идёт через ваш сервер.
 - Первый визит медленный (полный DH-handshake через релей); повторные —
   быстрые.
 - Вход по пасскею может не работать.
