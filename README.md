@@ -12,8 +12,8 @@ bytes, it is not a proxy and cannot read messages.
 
 You need Docker, a domain with a DNS record pointing at the host, free ports
 80/443, and your Telegram api_id/api_hash — get it once at
-<https://my.telegram.org> (API development tools); it is used at build time
-and never leaves your `.env`.
+<https://my.telegram.org> (API development tools); the image ships without
+any credentials, they are injected when the container starts.
 
 ```sh
 git clone https://github.com/fennr/tweb-relay.git
@@ -24,7 +24,9 @@ $EDITOR .env    # TWEB_HOST, TWEB_API_ID, TWEB_API_HASH
 docker compose -f docker-compose.standalone.yml up -d
 ```
 
-TLS certificates are issued and renewed automatically (Caddy).
+TLS certificates are issued and renewed automatically (Caddy). The
+credentials live only in your `.env` and in the running container, never in
+the image.
 
 Already running Traefik? Use `docker-compose.yml` instead —
 [docs/traefik.md](docs/traefik.md).

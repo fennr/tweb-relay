@@ -1,28 +1,32 @@
-# Own CI build and updating tweb
+# CI and building locally
 
-## Building in your own CI
+## CI
 
-`.github/workflows/build.yml` builds the image in GitHub Actions from the
-`TWEB_API_ID` / `TWEB_API_HASH` repository secrets and pushes it to
-`ghcr.io/<owner>/<repo>`:
+`.github/workflows/build.yml` builds and pushes `ghcr.io/<owner>/<repo>` on
+every push to `main` (and on tags or manual runs with a specific tweb ref).
+No repository secrets are needed: the image carries placeholder credentials
+only, and the real api_id/api_hash are injected from the environment when a
+container starts. Making the package public is therefore safe (it starts
+private; change the visibility in the package settings if you want).
+
+## Building locally
 
 ```sh
-gh secret set TWEB_API_ID  --body '<your-api-id>'
-gh secret set TWEB_API_HASH --body '<your-api-hash>'
+docker build -t tweb-relay:local .
 ```
 
-The image contains the bundled credentials, so keep the package private.
-Local build (the default here) and CI build produce the same result — pick
-whichever suits you.
+No build arguments are needed. Point `TWEB_IMAGE=tweb-relay:local` in `.env`
+at it.
 
 ## Updating tweb
 
-Set `TWEB_REF` (branch, tag or commit) in `.env` and rebuild:
+Run the workflow against another ref (or change the `TWEB_REF` default):
 
 ```sh
-docker compose up -d --build
+gh workflow run build-and-publish -f ref=v2.2.0
 ```
 
-The patch only touches endpoint construction, so it usually applies cleanly;
-if upstream refactors `dcConfigurator.ts`, the build fails at `git apply` and
-the patch needs a rebase.
+then `docker compose pull && docker compose up -d`. The patch only touches
+endpoint construction, so it usually applies cleanly; if upstream refactors
+`dcConfigurator.ts`, the build fails at `git apply` and the patch needs a
+rebase.

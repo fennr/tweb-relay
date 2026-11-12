@@ -10,15 +10,12 @@
 # For a variant behind an existing Traefik see docker-compose.yml.
 services:
   tweb:
-    build:
-      context: .
-      args:
-        API_ID: ${TWEB_API_ID:?set TWEB_API_ID in .env}
-        API_HASH: ${TWEB_API_HASH:?set TWEB_API_HASH in .env}
-        TWEB_REF: ${TWEB_REF:-master}
-    image: tweb-relay:local
+    image: ${TWEB_IMAGE:-ghcr.io/fennr/tweb-relay:latest}
     container_name: ${TWEB_CONTAINER:-tweb}
     restart: unless-stopped
+    environment:
+      API_ID: ${TWEB_API_ID:?set TWEB_API_ID in .env}
+      API_HASH: ${TWEB_API_HASH:?set TWEB_API_HASH in .env}
     healthcheck:
       test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1/"]
       interval: 30s

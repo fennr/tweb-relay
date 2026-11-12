@@ -52,8 +52,6 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-            API_ID=${{ secrets.TWEB_API_ID }}
-            API_HASH=${{ secrets.TWEB_API_HASH }}
             TWEB_REF=${{ inputs.ref || 'master' }}
           cache-from: type=gha
           cache-to: type=gha,mode=max

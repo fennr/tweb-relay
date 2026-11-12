@@ -11,9 +11,9 @@ MTProto в Telegram с вашего домена, поэтому ни стран
 ## Быстрый старт
 
 Нужны Docker, домен с DNS-записью на хост, свободные порты 80/443 и ваши
-api_id/api_hash от Telegram — получить один раз на
-<https://my.telegram.org> (API development tools); они используются при
-сборке и никогда не покидают ваш `.env`.
+api_id/api_hash от Telegram — получить один раз на <https://my.telegram.org>
+(API development tools); образ поставляется без кредов, они инжектятся при
+старте контейнера.
 
 ```sh
 git clone https://github.com/fennr/tweb-relay.git
@@ -24,7 +24,8 @@ $EDITOR .env    # TWEB_HOST, TWEB_API_ID, TWEB_API_HASH
 docker compose -f docker-compose.standalone.yml up -d
 ```
 
-Сертификаты TLS выпускаются и продлеваются автоматически (Caddy).
+Сертификаты TLS выпускаются и продлеваются автоматически (Caddy). Креды живут
+только в вашем `.env` и в запущенном контейнере, но не в образе.
 
 Уже есть Traefik? Берите `docker-compose.yml` —
 [docs/traefik.md](docs/traefik.md).

@@ -26,7 +26,8 @@ DC1=pluto, DC2=venus, DC3=aurora, DC4=vesta, DC5=flora.
 
 | Path | Purpose |
 |---|---|
-| `Dockerfile` | clones upstream tweb, applies the relay patch, builds the SPA, serves it from nginx |
+| `Dockerfile` | clones upstream tweb, applies the relay patch, builds the SPA with placeholder credentials, serves it from nginx |
+| `entrypoint/30-inject-credentials.sh` | injects the real api_id/api_hash from the `API_ID`/`API_HASH` environment into the bundle at container start |
 | `patches/0001-dc-relay.patch` | teaches `dcConfigurator.ts` to build DC endpoints from `location.origin` when `VITE_TG_RELAY_*` is set |
 | `nginx/conf.d/default.conf` | static site + relay locations + cache/security headers |
 | `nginx/snippets/mtproto-*.conf` | WebSocket upgrade / POST transport proxying |
