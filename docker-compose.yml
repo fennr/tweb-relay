@@ -1,10 +1,18 @@
-# Telegram Web K behind a same-origin MTProto relay
+# Telegram Web K behind a same-origin MTProto relay — Traefik variant.
 #
-# The image is built by .github/workflows/build.yml and published to GHCR.
-# Copy .env.example to .env and set TWEB_HOST before starting.
+# The first `docker compose up -d` builds the image locally with the
+# TWEB_API_ID / TWEB_API_HASH from .env, then nginx serves the SPA and relays
+# the MTProto streams to Telegram. For a variant without Traefik see
+# docker-compose.standalone.yml.
 services:
   tweb:
-    image: ${TWEB_IMAGE:-ghcr.io/<owner>/tweb-relay:latest}
+    build:
+      context: .
+      args:
+        API_ID: ${TWEB_API_ID:?set TWEB_API_ID in .env}
+        API_HASH: ${TWEB_API_HASH:?set TWEB_API_HASH in .env}
+        TWEB_REF: ${TWEB_REF:-master}
+    image: tweb-relay:local
     container_name: ${TWEB_CONTAINER:-tweb}
     restart: unless-stopped
     networks:

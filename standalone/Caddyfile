@@ -1,0 +1,7 @@
+# Reverse proxy for the standalone deployment: TLS termination for the
+# hostname from the TWEB_HOST environment variable, everything else is
+# forwarded to the tweb container (including the /tgws and /tgw relays;
+# Caddy upgrades WebSocket connections automatically).
+{$TWEB_HOST} {
+	reverse_proxy tweb:80
+}

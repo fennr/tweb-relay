@@ -1,0 +1,58 @@
+# Telegram Web K behind a same-origin MTProto relay — standalone variant.
+#
+# No reverse proxy required: Caddy terminates TLS and renews certificates
+# automatically. Requirements: ports 80/443 free on the host and a DNS A/AAAA
+# record for TWEB_HOST pointing at it.
+#
+#   cp .env.example .env && $EDITOR .env   # TWEB_HOST, TWEB_API_ID, TWEB_API_HASH
+#   docker compose -f docker-compose.standalone.yml up -d
+#
+# For a variant behind an existing Traefik see docker-compose.yml.
+services:
+  tweb:
+    build:
+      context: .
+      args:
+        API_ID: ${TWEB_API_ID:?set TWEB_API_ID in .env}
+        API_HASH: ${TWEB_API_HASH:?set TWEB_API_HASH in .env}
+        TWEB_REF: ${TWEB_REF:-master}
+    image: tweb-relay:local
+    container_name: ${TWEB_CONTAINER:-tweb}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: '3'
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: ${TWEB_CONTAINER:-tweb}-caddy
+    restart: unless-stopped
+    depends_on:
+      - tweb
+    environment:
+      # Caddy obtains a Let's Encrypt certificate for this name; ACME needs
+      # ports 80/443 reachable from the internet.
+      TWEB_HOST: ${TWEB_HOST:?set TWEB_HOST in .env}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./standalone/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: '3'
+
+volumes:
+  caddy_data:
+  caddy_config:
